@@ -2,7 +2,11 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { isAuthenticatedRequest } from "@/lib/auth-guard";
 import { loadConfig } from "@/lib/config";
-import { generateImage } from "@/lib/gemini-client";
+import {
+  fileToInlineImageInput,
+  generateImage,
+  validateReferenceImages,
+} from "@/lib/gemini-client";
 import { insertHistoryRow } from "@/lib/history-repository";
 import { buildImageFilePath, writeImageFile } from "@/lib/image-storage";
 
@@ -11,10 +15,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const { prompt } = await request.json();
+  const formData = await request.formData();
+  const prompt = formData.get("prompt");
+  const rawFiles = formData.getAll("referenceImages");
 
-  if (!prompt || typeof prompt !== "string") {
+  if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
     return NextResponse.json({ error: "请输入提示词" }, { status: 400 });
+  }
+
+  const files = rawFiles.filter((value): value is File => value instanceof File);
+
+  let referenceImages;
+  try {
+    referenceImages = await Promise.all(
+      validateReferenceImages(files).map((file) => fileToInlineImageInput(file)),
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "参考图校验失败" },
+      { status: 400 },
+    );
   }
 
   const config = loadConfig();
@@ -22,7 +42,7 @@ export async function POST(request: Request) {
   const createdAt = new Date();
 
   try {
-    const result = await generateImage(prompt);
+    const result = await generateImage(prompt, referenceImages);
     const paths = buildImageFilePath(
       config.imageStorageDir,
       id,

@@ -5,6 +5,14 @@ export type InlineImageInput = {
   data: string;
 };
 
+const MAX_REFERENCE_IMAGES = 3;
+const MAX_REFERENCE_IMAGE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_REFERENCE_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
 type GeneratePart =
   | { text: string }
   | {
@@ -30,6 +38,35 @@ type GeminiImageResponse = {
     };
   }>;
 };
+
+export function validateReferenceImages(files: File[]) {
+  if (files.length > MAX_REFERENCE_IMAGES) {
+    throw new Error("最多上传 3 张参考图");
+  }
+
+  for (const file of files) {
+    if (!ALLOWED_REFERENCE_IMAGE_TYPES.has(file.type)) {
+      throw new Error("仅支持 JPG、PNG、WebP");
+    }
+
+    if (file.size > MAX_REFERENCE_IMAGE_BYTES) {
+      throw new Error("单张图片不能超过 10MB");
+    }
+  }
+
+  return files;
+}
+
+export async function fileToInlineImageInput(
+  file: File,
+): Promise<InlineImageInput> {
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  return {
+    mimeType: file.type,
+    data: buffer.toString("base64"),
+  };
+}
 
 export function buildGenerateParts(
   prompt: string,
