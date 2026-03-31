@@ -1,11 +1,41 @@
 import { describe, expect, it } from "vitest";
-import { parseImageDataUrl } from "@/lib/gemini-client";
+import { buildGenerateParts, parseGeneratedImage } from "@/lib/gemini-client";
 
-describe("parseImageDataUrl", () => {
-  it("extracts mime type and bytes from a data url", () => {
-    const result = parseImageDataUrl("data:image/jpeg;base64,aGVsbG8=");
+describe("buildGenerateParts", () => {
+  it("builds text and multiple inline_data parts", () => {
+    const parts = buildGenerateParts("一只红苹果", [
+      { mimeType: "image/png", data: "YWJj" },
+      { mimeType: "image/jpeg", data: "ZGVm" },
+    ]);
 
-    expect(result.mimeType).toBe("image/jpeg");
+    expect(parts).toEqual([
+      { text: "一只红苹果" },
+      { inline_data: { mime_type: "image/png", data: "YWJj" } },
+      { inline_data: { mime_type: "image/jpeg", data: "ZGVm" } },
+    ]);
+  });
+});
+
+describe("parseGeneratedImage", () => {
+  it("extracts mime type and bytes from Gemini inlineData", () => {
+    const result = parseGeneratedImage({
+      candidates: [
+        {
+          content: {
+            parts: [
+              {
+                inlineData: {
+                  mimeType: "image/png",
+                  data: "aGVsbG8=",
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(result.mimeType).toBe("image/png");
     expect(result.buffer.toString("utf8")).toBe("hello");
   });
 });
