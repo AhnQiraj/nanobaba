@@ -57,3 +57,33 @@ test("shows generated image in result area and history", async ({ page }) => {
     page.getByRole("listitem").getByText("一只红苹果，白色背景"),
   ).toBeVisible();
 });
+
+test("shows selected reference image previews before generation", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByPlaceholder("请输入密码").fill("test-password");
+  await page.getByRole("button", { name: "登录" }).click();
+
+  await page.setInputFiles('input[type="file"]', {
+    name: "ref-1.png",
+    mimeType: "image/png",
+    buffer: Buffer.from("fake-image"),
+  });
+
+  await expect(page.getByText("已选参考图")).toBeVisible();
+  await expect(page.getByText("ref-1.png")).toBeVisible();
+});
+
+test("blocks selecting more than 3 reference images", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByPlaceholder("请输入密码").fill("test-password");
+  await page.getByRole("button", { name: "登录" }).click();
+
+  await page.setInputFiles('input[type="file"]', [
+    { name: "1.png", mimeType: "image/png", buffer: Buffer.from("1") },
+    { name: "2.png", mimeType: "image/png", buffer: Buffer.from("2") },
+    { name: "3.png", mimeType: "image/png", buffer: Buffer.from("3") },
+    { name: "4.png", mimeType: "image/png", buffer: Buffer.from("4") },
+  ]);
+
+  await expect(page.getByText("最多上传 3 张参考图")).toBeVisible();
+});
