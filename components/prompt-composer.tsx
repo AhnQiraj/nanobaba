@@ -21,11 +21,25 @@ export function PromptComposer() {
       body: JSON.stringify({ prompt }),
     });
 
-    setPending(false);
-
     if (!response.ok) {
+      setPending(false);
       setError("生成失败，请稍后再试");
+      return;
     }
+
+    const result = (await response.json()) as {
+      imageUrl: string;
+      prompt: string;
+      createdAt: string;
+    };
+
+    window.dispatchEvent(
+      new CustomEvent("nanobaba:generation-success", {
+        detail: result,
+      }),
+    );
+    window.dispatchEvent(new Event("nanobaba:history-refresh"));
+    setPending(false);
   }
 
   return (

@@ -1,11 +1,16 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
+import { isAuthenticatedRequest } from "@/lib/auth-guard";
 import { loadConfig } from "@/lib/config";
 import { generateImage } from "@/lib/gemini-client";
 import { insertHistoryRow } from "@/lib/history-repository";
 import { buildImageFilePath, writeImageFile } from "@/lib/image-storage";
 
 export async function POST(request: Request) {
+  if (!(await isAuthenticatedRequest())) {
+    return NextResponse.json({ error: "未登录" }, { status: 401 });
+  }
+
   const { prompt } = await request.json();
 
   if (!prompt || typeof prompt !== "string") {

@@ -1,6 +1,31 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
+type ResultState = {
+  imageUrl: string;
+  prompt: string;
+  createdAt: string;
+} | null;
+
 export function ImageResultCard() {
+  const [result, setResult] = useState<ResultState>(null);
+
+  useEffect(() => {
+    function handleResult(event: Event) {
+      const customEvent = event as CustomEvent<ResultState>;
+      setResult(customEvent.detail);
+    }
+
+    window.addEventListener("nanobaba:generation-success", handleResult);
+
+    return () => {
+      window.removeEventListener("nanobaba:generation-success", handleResult);
+    };
+  }, []);
+
   return (
     <Card className="overflow-hidden p-6 md:p-7">
       <div className="flex items-center justify-between gap-4">
@@ -16,12 +41,32 @@ export function ImageResultCard() {
           生成完成后可下载
         </span>
       </div>
-      <div className="mt-5 rounded-[1.8rem] border border-dashed border-stone-300 bg-[linear-gradient(180deg,rgba(250,244,232,0.85),rgba(255,255,255,0.92))] p-8">
-        <div className="aspect-[4/3] rounded-[1.4rem] bg-[radial-gradient(circle_at_top,#f9ddb1,transparent_36%),linear-gradient(180deg,#faf7ef_0%,#efe7d7_100%)]" />
-        <p className="mt-4 text-sm leading-6 text-stone-500">
-          生成完成后，图片会显示在这里，并提供下载入口。
-        </p>
-      </div>
+      {result ? (
+        <div className="mt-5 rounded-[1.8rem] border border-stone-200 bg-white/70 p-4">
+          <img
+            className="w-full rounded-[1.4rem] border border-stone-200"
+            src={result.imageUrl}
+            alt="最新生成图片"
+          />
+          <p className="mt-4 text-sm leading-6 text-stone-700">{result.prompt}</p>
+          <p className="mt-2 text-xs text-stone-500">
+            {new Date(result.createdAt).toLocaleString("zh-CN")}
+          </p>
+          <Button
+            className="mt-4"
+            onClick={() => window.open(result.imageUrl, "_blank", "noopener,noreferrer")}
+          >
+            下载图片
+          </Button>
+        </div>
+      ) : (
+        <div className="mt-5 rounded-[1.8rem] border border-dashed border-stone-300 bg-[linear-gradient(180deg,rgba(250,244,232,0.85),rgba(255,255,255,0.92))] p-8">
+          <div className="aspect-[4/3] rounded-[1.4rem] bg-[radial-gradient(circle_at_top,#f9ddb1,transparent_36%),linear-gradient(180deg,#faf7ef_0%,#efe7d7_100%)]" />
+          <p className="mt-4 text-sm leading-6 text-stone-500">
+            生成完成后，图片会显示在这里，并提供下载入口。
+          </p>
+        </div>
+      )}
     </Card>
   );
 }

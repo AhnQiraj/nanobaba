@@ -5,3 +5,9 @@ test("shows login form when logged out", async ({ page }) => {
 
   await expect(page.getByRole("button", { name: "登录" })).toBeVisible();
 });
+
+test("blocks history api when logged out", async ({ request }) => {
+  const response = await request.get("/api/history");
+
+  expect(response.status()).toBe(401);
+});
