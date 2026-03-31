@@ -38,4 +38,26 @@ describe("parseGeneratedImage", () => {
     expect(result.mimeType).toBe("image/png");
     expect(result.buffer.toString("utf8")).toBe("hello");
   });
+
+  it("extracts mime type and bytes from Gemini inline_data", () => {
+    const result = parseGeneratedImage({
+      candidates: [
+        {
+          content: {
+            parts: [
+              {
+                inline_data: {
+                  mime_type: "image/jpeg",
+                  data: "d29ybGQ=",
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    expect(result.mimeType).toBe("image/jpeg");
+    expect(result.buffer.toString("utf8")).toBe("world");
+  });
 });
