@@ -4,10 +4,15 @@
   --bg: #f5f1e8;
   --panel: #fffdf8;
   --text: #1c1917;
+  --font-body:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+    "Source Han Sans SC", sans-serif;
+  --font-display:
+    "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
 }
 
 html {
-  font-family: var(--font-body), "Noto Sans SC", sans-serif;
+  font-family: var(--font-body);
 }
 
 body {
@@ -22,7 +27,7 @@ body {
 h1,
 h2,
 h3 {
-  font-family: var(--font-display), "Noto Serif SC", serif;
+  font-family: var(--font-display);
   letter-spacing: -0.02em;
 }
 

@@ -26,4 +26,18 @@ describe("validateReferenceImages", () => {
       ]),
     ).toThrow("最多上传 3 张参考图");
   });
+
+  it("rejects unsupported file types", () => {
+    expect(() =>
+      validateReferenceImages([createFile(1, "image/gif", "sample.gif")]),
+    ).toThrow("仅支持 JPG、PNG、WebP");
+  });
+
+  it("rejects files larger than 10MB", () => {
+    expect(() =>
+      validateReferenceImages([
+        createFile(10 * 1024 * 1024 + 1, "image/png", "too-large.png"),
+      ]),
+    ).toThrow("单张图片不能超过 10MB");
+  });
 });

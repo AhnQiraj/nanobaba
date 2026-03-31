@@ -1,10 +1,10 @@
 FROM node:22-bookworm-slim AS base
 WORKDIR /app
+
+FROM base AS deps
 RUN apt-get update \
   && apt-get install -y --no-install-recommends python3 make g++ \
   && rm -rf /var/lib/apt/lists/*
-
-FROM base AS deps
 COPY package.json package-lock.json ./
 RUN npm ci
 
@@ -12,9 +12,16 @@ FROM base AS builder
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+RUN APP_PASSWORD=build-password \
+  SESSION_SECRET=12345678901234567890123456789012 \
+  GEMINI_PROXY_BASE_URL=https://example.invalid \
+  GEMINI_PROXY_API_KEY=build-key \
+  GEMINI_IMAGE_MODEL=gemini-3.1-flash-image \
+  DATABASE_URL=file:./data/app.db \
+  IMAGE_STORAGE_DIR=./data/images \
+  npm run build
 
-FROM base AS runner
+FROM node:22-bookworm-slim AS runner
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app

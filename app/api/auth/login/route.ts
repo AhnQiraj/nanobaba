@@ -1,7 +1,11 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { loadConfig } from "@/lib/config";
-import { sessionCookieName, signSessionToken } from "@/lib/session";
+import {
+  sessionCookieName,
+  shouldUseSecureCookie,
+  signSessionToken,
+} from "@/lib/session";
 
 export async function POST(request: Request) {
   const { password } = await request.json();
@@ -16,7 +20,7 @@ export async function POST(request: Request) {
   cookieStore.set(sessionCookieName, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: shouldUseSecureCookie(request.headers),
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });

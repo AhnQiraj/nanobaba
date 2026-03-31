@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { signSessionToken, verifySessionToken } from "@/lib/session";
+import {
+  shouldUseSecureCookie,
+  signSessionToken,
+  verifySessionToken,
+} from "@/lib/session";
 
 describe("session token", () => {
   it("round-trips a logged-in marker", async () => {
@@ -12,5 +16,21 @@ describe("session token", () => {
     );
 
     expect(payload.loggedIn).toBe(true);
+  });
+
+  it("uses secure cookies for https requests", () => {
+    const headers = new Headers({
+      "x-forwarded-proto": "https",
+    });
+
+    expect(shouldUseSecureCookie(headers)).toBe(true);
+  });
+
+  it("does not use secure cookies for plain http requests", () => {
+    const headers = new Headers({
+      "x-forwarded-proto": "http",
+    });
+
+    expect(shouldUseSecureCookie(headers)).toBe(false);
   });
 });

@@ -19,4 +19,20 @@ export async function verifySessionToken(token: string, secret: string) {
   return result.payload as { loggedIn: boolean };
 }
 
+export function shouldUseSecureCookie(headers: Headers) {
+  const forwardedProto = headers.get("x-forwarded-proto");
+
+  if (forwardedProto) {
+    return forwardedProto.split(",")[0]?.trim() === "https";
+  }
+
+  const origin = headers.get("origin");
+
+  if (origin) {
+    return origin.startsWith("https://");
+  }
+
+  return false;
+}
+
 export const sessionCookieName = COOKIE_NAME;

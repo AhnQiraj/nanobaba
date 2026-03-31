@@ -32,3 +32,48 @@
 3. 启动服务：`npm run start`
 4. 使用 Nginx 或 Caddy 反向代理并启用 HTTPS
 5. 用 `cron` 或 `systemd timer` 每天执行一次 `npm run cleanup`
+
+## Docker
+
+### Build locally
+
+`docker build -t ahnqiraj/nanobanana:local .`
+
+### Run with Docker Compose
+
+`docker compose up -d`
+
+`docker compose ps`
+
+`docker compose down`
+
+`docker-compose.yml` 默认映射 `3000:3000`。如果你想暴露到 `8888`，请在运行命令层改外部映射，例如：
+
+`docker run -p 8888:3000 ...`
+
+开发或临时预览时，可以直接通过 `http://<ip>:<port>` 访问。
+生产环境请务必放在 Nginx、Caddy 或其他反向代理后，并启用 `https://`，这样登录 cookie 会按 HTTPS 安全策略下发。
+
+容器运行时会把 `./data` 挂载到 `/app/data`，因此请保持：
+
+- `DATABASE_URL=file:./data/app.db`
+- `IMAGE_STORAGE_DIR=./data/images`
+
+## Publish to Docker Hub
+
+GitHub Actions 会在推送 `v*` tag 时自动发布两个标签：
+
+- `ahnqiraj/nanobanana:<git-tag>`
+- `ahnqiraj/nanobanana:latest`
+
+仓库需要配置两个 GitHub Secrets：
+
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN`
+
+发布方式：
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
