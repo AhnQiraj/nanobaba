@@ -1,0 +1,10 @@
+.git
+.github
+.next
+.worktrees
+node_modules
+test-results
+playwright-report
+data
+.env
+npm-debug.log
