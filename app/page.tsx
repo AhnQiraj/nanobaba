@@ -15,10 +15,10 @@ export default async function HomePage() {
           <div className="relative flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-2xl">
               <p className="text-xs uppercase tracking-[0.4em] text-stone-500">
-                Nanobaba Private Studio
+                AhnQiraj Image Studio
               </p>
               <h1 className="mt-4 text-4xl font-semibold leading-tight text-stone-950 md:text-5xl">
-                给老婆的生图小站
+                AhnQiraj的生图站
               </h1>
               <p className="mt-4 max-w-xl text-sm leading-7 text-stone-600 md:text-base">
                 在这里写下想要的画面，生成结果会保存在本地，并自动保留最近 30
