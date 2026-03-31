@@ -56,3 +56,45 @@ export function insertHistoryRow(
 
   return row;
 }
+
+export function listRecentHistory() {
+  return db
+    .prepare(
+      `
+        SELECT
+          id,
+          prompt,
+          model,
+          mime_type AS mimeType,
+          status,
+          created_at AS createdAt
+        FROM image_history
+        WHERE status = 'success'
+          AND created_at >= datetime('now', '-30 days')
+        ORDER BY created_at DESC
+      `,
+    )
+    .all() as Array<
+    Pick<HistoryRow, "id" | "prompt" | "model" | "mimeType" | "status" | "createdAt">
+  >;
+}
+
+export function findHistoryById(id: string) {
+  return db
+    .prepare(
+      `
+        SELECT
+          id,
+          prompt,
+          model,
+          image_path AS imagePath,
+          mime_type AS mimeType,
+          status,
+          error_message AS errorMessage,
+          created_at AS createdAt
+        FROM image_history
+        WHERE id = ?
+      `,
+    )
+    .get(id) as HistoryRow | undefined;
+}
