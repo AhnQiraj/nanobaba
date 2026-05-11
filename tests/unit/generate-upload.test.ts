@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateReferenceImages } from "@/lib/gemini-client";
+import { validateReferenceImages } from "@/lib/gpt-image-client";
 
 function createFile(size: number, type: string, name = "sample.png") {
   return new File([new Uint8Array(size)], name, { type });

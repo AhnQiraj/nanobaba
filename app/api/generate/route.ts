@@ -3,12 +3,15 @@ import { NextResponse } from "next/server";
 import { isAuthenticatedRequest } from "@/lib/auth-guard";
 import { loadConfig } from "@/lib/config";
 import {
-  fileToInlineImageInput,
+  describeGenerationError,
+  fileToReferenceImageInput,
   generateImage,
   validateReferenceImages,
-} from "@/lib/gemini-client";
+} from "@/lib/gpt-image-client";
 import { insertHistoryRow } from "@/lib/history-repository";
 import { buildImageFilePath, writeImageFile } from "@/lib/image-storage";
+
+export const maxDuration = 120;
 
 export async function POST(request: Request) {
   if (!(await isAuthenticatedRequest())) {
@@ -28,7 +31,9 @@ export async function POST(request: Request) {
   let referenceImages;
   try {
     referenceImages = await Promise.all(
-      validateReferenceImages(files).map((file) => fileToInlineImageInput(file)),
+      validateReferenceImages(files).map((file) =>
+        fileToReferenceImageInput(file),
+      ),
     );
   } catch (error) {
     return NextResponse.json(
@@ -77,7 +82,7 @@ export async function POST(request: Request) {
       imagePath: "",
       mimeType: "",
       status: "failed",
-      errorMessage: error instanceof Error ? error.message : "unknown error",
+      errorMessage: describeGenerationError(error),
       createdAt: createdAt.toISOString(),
     });
 

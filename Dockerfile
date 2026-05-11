@@ -14,9 +14,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN APP_PASSWORD=build-password \
   SESSION_SECRET=12345678901234567890123456789012 \
-  GEMINI_PROXY_BASE_URL=https://example.invalid \
-  GEMINI_PROXY_API_KEY=build-key \
-  GEMINI_IMAGE_MODEL=gemini-3.1-flash-image \
+  OPENAI_IMAGE_BASE_URL=https://example.invalid \
+  OPENAI_IMAGE_API_KEY=build-key \
+  OPENAI_IMAGE_MODEL=gpt-image-2 \
   DATABASE_URL=file:./data/app.db \
   IMAGE_STORAGE_DIR=./data/images \
   npm run build

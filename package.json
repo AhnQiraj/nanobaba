@@ -11,6 +11,7 @@
     "cleanup": "node scripts/cleanup.mjs"
   },
   "dependencies": {
+    "@radix-ui/react-scroll-area": "^1.2.10",
     "better-sqlite3": "^12.0.0",
     "clsx": "^2.1.1",
     "jose": "^6.0.12",

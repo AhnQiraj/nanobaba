@@ -135,3 +135,48 @@ test("blocks selecting more than 3 reference images", async ({ page }) => {
 
   await expect(page.getByText("最多上传 3 张参考图")).toBeVisible();
 });
+
+test("uses a history image as a reference for another generation", async ({ page }) => {
+  await page.route("**/api/history", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        items: [
+          {
+            id: "entry-history-ref",
+            prompt: "一只红苹果，白色背景",
+            imageUrl: "/mock/history-apple.png",
+            createdAt: "2026-03-31T12:00:00.000Z",
+          },
+        ],
+      }),
+    });
+  });
+
+  await page.route("**/mock/history-apple.png", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "image/png",
+      body: Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=",
+        "base64",
+      ),
+    });
+  });
+
+  await page.goto("/login");
+  await page.getByPlaceholder("请输入密码").fill("test-password");
+  await page.getByRole("button", { name: "登录" }).click();
+  const referenceButton = page.getByRole("button", { name: "参考" }).first();
+  await expect(referenceButton).toBeVisible();
+  await referenceButton.click();
+
+  await expect(
+    page.getByPlaceholder(
+      "例如：帮我生成一张春天傍晚的花园照片，暖色调，自然光，写实风格",
+    ),
+  ).toHaveValue("一只红苹果，白色背景");
+  await expect(page.getByText("已选参考图")).toBeVisible();
+  await expect(page.getByText("entry-history-ref.png")).toBeVisible();
+});

@@ -1,6 +1,6 @@
 # Nanobaba
 
-一个部署在 VPS 上的私有中文生图站点，基于 Next.js、Gemini 代理接口、本地文件存储和 SQLite 历史记录。
+一个部署在 VPS 上的私有中文生图站点，基于 Next.js、GPT image 兼容接口、本地文件存储和 SQLite 历史记录。
 
 ## Docker Deploy
 
@@ -16,9 +16,9 @@ docker run -d \
   -v $(pwd)/data:/app/data \
   -e APP_PASSWORD='replace-with-your-password' \
   -e SESSION_SECRET='replace-with-32-byte-random-string' \
-  -e GEMINI_PROXY_BASE_URL='https://mytoken.online' \
-  -e GEMINI_PROXY_API_KEY='replace-with-your-api-key' \
-  -e GEMINI_IMAGE_MODEL='gemini-3.1-flash-image' \
+  -e OPENAI_IMAGE_BASE_URL='https://app.yylx.io' \
+  -e OPENAI_IMAGE_API_KEY='replace-with-your-api-key' \
+  -e OPENAI_IMAGE_MODEL='gpt-image-2' \
   -e DATABASE_URL='file:./data/app.db' \
   -e IMAGE_STORAGE_DIR='./data/images' \
   ahnqiraj/nanobanana:latest
@@ -32,6 +32,8 @@ docker run -d \
 
 - `APP_PASSWORD`: 登录密码
 - `SESSION_SECRET`: 至少 32 字节的随机字符串
-- `GEMINI_PROXY_BASE_URL`: Gemini 兼容代理地址
-- `GEMINI_PROXY_API_KEY`: Gemini 兼容代理密钥
-- `GEMINI_IMAGE_MODEL`: 生图模型名，默认可用 `gemini-3.1-flash-image`
+- `OPENAI_IMAGE_BASE_URL`: OpenAI 图片接口兼容地址，例如 `https://app.yylx.io`
+- `OPENAI_IMAGE_API_KEY`: OpenAI 图片接口兼容密钥
+- `OPENAI_IMAGE_MODEL`: 生图模型名，默认使用 `gpt-image-2`
+
+兼容旧变量名 `GEMINI_PROXY_BASE_URL`、`GEMINI_PROXY_API_KEY`、`GEMINI_IMAGE_MODEL`，但新部署建议使用 `OPENAI_IMAGE_*`。

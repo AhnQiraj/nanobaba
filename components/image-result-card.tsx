@@ -28,7 +28,7 @@ export function ImageResultCard() {
 
   return (
     <Card className="overflow-hidden p-6 md:p-7">
-      <div className="flex items-center justify-between gap-4">
+      <div>
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-stone-500">
             result
@@ -37,9 +37,6 @@ export function ImageResultCard() {
             当前结果
           </h2>
         </div>
-        <span className="rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-600">
-          生成完成后可下载
-        </span>
       </div>
       {result ? (
         <div className="mt-5 rounded-[1.8rem] border border-stone-200 bg-white/70 p-4">

@@ -11,9 +11,9 @@ export default defineConfig({
     env: {
       APP_PASSWORD: "test-password",
       SESSION_SECRET: "12345678901234567890123456789012",
-      GEMINI_PROXY_BASE_URL: "https://example.invalid",
-      GEMINI_PROXY_API_KEY: "test-key",
-      GEMINI_IMAGE_MODEL: "gemini-3.1-flash-image",
+      OPENAI_IMAGE_BASE_URL: "https://example.invalid",
+      OPENAI_IMAGE_API_KEY: "test-key",
+      OPENAI_IMAGE_MODEL: "gpt-image-2",
       DATABASE_URL: "file:./data/e2e.db",
       IMAGE_STORAGE_DIR: "./data/e2e-images",
       NEXT_TELEMETRY_DISABLED: "1",

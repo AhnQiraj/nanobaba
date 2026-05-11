@@ -1,10 +1,11 @@
 "use client";
 
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import type { UseHistoryImageEventDetail } from "@/components/history-list";
 
 type SelectedReferenceImage = {
   file: File;
@@ -128,9 +129,57 @@ export function PromptComposer() {
     });
   }
 
+  useEffect(() => {
+    function handleUseHistoryImage(event: Event) {
+      const { id, prompt: sourcePrompt, imageUrl } = (
+        event as CustomEvent<UseHistoryImageEventDetail>
+      ).detail;
+
+      void (async () => {
+        if (referenceImages.length >= MAX_REFERENCE_IMAGES) {
+          setError("最多上传 3 张参考图");
+          return;
+        }
+
+        try {
+          const response = await fetch(imageUrl);
+          if (!response.ok) {
+            throw new Error("history image request failed");
+          }
+
+          const blob = await response.blob();
+          const file = new File([blob], `${id}.png`, {
+            type: blob.type || "image/png",
+          });
+
+          setError("");
+          setPrompt((current) => current || sourcePrompt);
+          setReferenceImages((current) => [
+            ...current,
+            {
+              file,
+              objectUrl: URL.createObjectURL(file),
+            },
+          ]);
+        } catch {
+          setError("历史图片读取失败");
+        }
+      })();
+    }
+
+    window.addEventListener("nanobaba:use-history-image", handleUseHistoryImage);
+
+    return () => {
+      window.removeEventListener(
+        "nanobaba:use-history-image",
+        handleUseHistoryImage,
+      );
+    };
+  }, [referenceImages.length]);
+
   return (
     <Card className="p-6 md:p-7">
-      <div className="flex items-center justify-between gap-4">
+      <div>
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-stone-500">
             prompt
@@ -139,9 +188,6 @@ export function PromptComposer() {
             输入想看的画面
           </h2>
         </div>
-        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs text-amber-800">
-          中文提示词优先
-        </span>
       </div>
       <Textarea
         className="mt-5"
