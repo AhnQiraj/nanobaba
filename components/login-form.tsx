@@ -49,9 +49,6 @@ export function LoginForm() {
         <h1 className="mt-3 text-3xl font-semibold text-stone-900">
           AhnQiraj的生图站
         </h1>
-        <p className="mt-3 text-sm leading-6 text-stone-600">
-          输入家里的登录密码，就能开始生成和查看最近 30 天的图片记录。
-        </p>
         <Input
           className="mt-6"
           type="password"
