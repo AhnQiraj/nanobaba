@@ -25,7 +25,11 @@ export function LoginForm() {
     });
 
     if (!response.ok) {
-      setError("密码不正确");
+      const body = (await response.json().catch(() => null)) as {
+        error?: string;
+      } | null;
+
+      setError(body?.error ?? "登录失败，请稍后重试");
       return;
     }
 
